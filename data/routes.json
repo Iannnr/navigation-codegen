@@ -1,0 +1,17 @@
+[
+  {
+    "from": "AccountDetails",
+    "to": "ForgotPassword",
+    "type": "intent",
+    "arguments": {}
+  },
+  {
+    "from": "SpendingInsights",
+    "to": "TransactionsFeed",
+    "type": "fragment",
+    "arguments": {
+      "accountId": "UUID",
+      "hasFlag": "BOOLEAN",
+    }
+  }
+]
