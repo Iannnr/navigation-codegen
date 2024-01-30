@@ -18,7 +18,6 @@ abstract class RouteGeneratorTask : DefaultTask() {
     fun execute() {
         val outputDir = outputDirectory.get().asFile
         val inputDir = inputDirectory.get().asFile
-        val generator = Generator()
-        generator(inputDir, outputDir)
+        Generator().invoke(inputDir, outputDir)
     }
 }

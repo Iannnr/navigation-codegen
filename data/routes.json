@@ -1,17 +1,33 @@
 [
   {
-    "from": "AccountDetails",
-    "to": "ForgotPassword",
+    "from": "A",
+    "to": "B",
     "type": "intent",
     "arguments": {}
   },
   {
-    "from": "SpendingInsights",
-    "to": "TransactionsFeed",
+    "from": "B",
+    "to": "C",
     "type": "fragment",
     "arguments": {
-      "accountId": "UUID",
+      "id": "UUID",
       "hasFlag": "BOOLEAN",
+    }
+  },
+  {
+    "from": "C",
+    "to": "D",
+    "type": "contract",
+  },
+  {
+    "from": "A",
+    "to": "B",
+    "type": "fragment",
+    "arguments": {
+      "id": "UUID",
+      "number": "LONG",
+      "showEverything": "BOOLEAN",
+      "content": "STRING",
     }
   }
 ]

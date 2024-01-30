@@ -10,14 +10,13 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
-import java.io.Console
 import java.io.File
 import java.io.IOException
 
 @OptIn(ExperimentalSerializationApi::class)
 class Generator {
     operator fun invoke(inputFile: File, outputFile: File) {
-        println(inputFile.path)
+        // decode with JSON, catch some errors
         val input = try {
             File(inputFile, "routes.json").inputStream().use {
                 json.decodeFromStream<List<Route>>(it)
@@ -30,25 +29,27 @@ class Generator {
             return io.printStackTrace()
         }
 
+        val context = ClassName("android.content", "Context")
+
         input.forEach {
-            val className = ClassName(
+            val interfaceClass = ClassName(
                 "navigation.routes",
-                "${it.from}To${it.to}${it.type.desc}"
+                "${it.from}To${it.to}${it.type.signature}"
             )
 
-            val output = FileSpec.builder(className)
+            val output = FileSpec.builder(interfaceClass)
                 .addType(
-                    TypeSpec.funInterfaceBuilder(className)
+                    TypeSpec.funInterfaceBuilder(interfaceClass)
                         .addFunction(
-                            FunSpec.builder("get${it.type.desc}")
+                            FunSpec.builder("get${it.type.signature}")
                                 .addModifiers(KModifier.ABSTRACT)
-                                .addParameter("context", ClassName("android.content", "Context"))
+                                .addParameter("context", context)
                                 .apply {
                                     it.arguments?.forEach { (param, type) ->
                                         addParameter(param, type.className)
                                     }
                                 }
-                                .returns(it.type.className)
+                                .returns(it.type.returnType)
                                 .build()
                         )
                         .build()
@@ -56,7 +57,6 @@ class Generator {
                 .build()
 
             output.writeTo(outputFile)
-            println(outputFile.path)
         }
     }
 }
@@ -67,4 +67,5 @@ val json = Json {
     decodeEnumsCaseInsensitive = true
     isLenient = true
     allowTrailingComma = true
+    explicitNulls = false
 }

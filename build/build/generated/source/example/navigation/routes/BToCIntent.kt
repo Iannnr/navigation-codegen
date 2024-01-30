@@ -5,10 +5,10 @@ import androidx.fragment.app.Fragment
 import java.util.UUID
 import kotlin.Boolean
 
-public fun interface SpendingInsightsToTransactionsFeedIntent {
+public fun interface BToCIntent {
   public fun getIntent(
     context: Context,
-    accountId: UUID,
+    id: UUID,
     hasFlag: Boolean,
   ): Fragment
 }

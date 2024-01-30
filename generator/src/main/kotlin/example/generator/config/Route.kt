@@ -1,6 +1,9 @@
 package example.generator.config
 
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.STAR
+import com.squareup.kotlinpoet.TypeName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -12,12 +15,18 @@ data class Route(
 )
 
 @Serializable
-enum class Type(val desc: String, packageName: String) {
+enum class Type(val signature: String, private val packageName: String) {
     FRAGMENT("Intent", "androidx.fragment.app.Fragment"),
     INTENT("Fragment", "android.content.Intent"),
-    CONTRACT("Contract", "androidx.activity.result.contract.ActivityResultContract<*, *>");
+    CONTRACT("Contract", "androidx.activity.result.contract.ActivityResultContract");
 
-    val className = packageName.asClassName
+    // adds star projection for ActivityResultContract<*, *>
+    val returnType: TypeName
+        get() = if (this == CONTRACT) {
+            packageName.asClassName.parameterizedBy(STAR, STAR)
+        } else {
+            packageName.asClassName
+        }
 }
 
 @Serializable
