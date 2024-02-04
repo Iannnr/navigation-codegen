@@ -6,15 +6,10 @@ pluginManagement {
     }
 
     plugins {
-        resolutionStrategy {
-            eachPlugin {
-                val id = requested.id.id
-                when {
-                    id.startsWith("com.android.") -> useModule("com.android.tools.build:gradle:8.1.0-beta05")
-                    id.startsWith("org.jetbrains.kotlin.") -> useVersion("1.9.21")
-                }
-            }
-        }
+        id("org.jetbrains.kotlin.jvm") version "1.9.0"
+        id("com.android.library") version "8.3.0-beta02"
+        id("org.jetbrains.kotlin.android") version "1.9.21"
+        id("com.android.application") version "8.3.0-beta02"
     }
 }
 
@@ -26,5 +21,6 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "android-codegen"
-includeBuild("generator")
-includeBuild("plugin")
+include(":annotation")
+include(":processor")
+include(":app")

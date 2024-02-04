@@ -1,11 +1,14 @@
 plugins {
     id("com.android.library")
-    id("example.plugin")
     kotlin("android")
 }
 
 android {
     compileSdk = 34
+
+    defaultConfig {
+        minSdk = 23
+    }
 
     namespace = "example.plugin"
 
@@ -32,6 +35,8 @@ kotlin {
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
     implementation("androidx.fragment:fragment-ktx:1.6.2")
+
+    implementation(project(":annotation"))
 
     testImplementation("junit:junit:4.13.2")
 }
