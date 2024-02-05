@@ -3,7 +3,6 @@ package example.plugin.processor
 import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.symbol.FunctionKind
-import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.ClassName
@@ -37,16 +36,14 @@ class RouteGenerator(
         get() = toClassName().parameterizedBy(STAR, STAR) == contract
 
     private val KSType.isFragment: Boolean
-        get() = toClassName() == fragment || toClassName() == deprecatedFragment
+        get() = toClassName() == fragment || toClassName() == deprecatedFragment // needs to be instanceOf fragment
 
     fun generate(route: KSFunctionDeclaration, routeName: String) {
-
-        // find a parent which isn't a companion object
-        val parentClass = route.declarations.filterIsInstance<KSClassDeclaration>().firstOrNull { !it.isCompanionObject }
-        // default name of the parent class
-        val defaultRouteName = parentClass?.toClassName()?.simpleName ?: return
+        // expects to be declared in a companion object, so finds the parent of that parent companion object
+        // should try to find declarations, filter KSClassDeclaration and filter not isCompanionObject...
+        val parentClass = route.parentDeclaration?.parentDeclaration?.closestClassDeclaration()?.toClassName()?.simpleName ?: return
         // allow routeName override from params, fall back to class name
-        val interfaceName = routeName.ifBlank { defaultRouteName }
+        val interfaceName = routeName.ifBlank { parentClass }
 
         // makes sure it's annotation on a member function, not a root-level static function
         val isParentCompanionObject = route.closestClassDeclaration()?.isCompanionObject
@@ -58,7 +55,7 @@ class RouteGenerator(
             "${interfaceName}NavigationRoute"
         )
 
-        // require a return type, should be either Intent, Fragment or Contract
+        // require a return type (should be either Intent, Fragment or Contract)
         val returnType = route.returnType ?: return
 
         val resolvedType = returnType.resolve()
