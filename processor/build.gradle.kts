@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm")
-    id("com.google.devtools.ksp") version "1.9.21-1.0.16"
+    id("com.google.devtools.ksp") version libs.versions.ksp.get()
 }
 
 java {
@@ -14,7 +14,8 @@ sourceSets.main {
 
 dependencies {
     implementation(project(":annotation"))
-    implementation("com.google.devtools.ksp:symbol-processing-api:1.9.21-1.0.16")
-    implementation("com.squareup:kotlinpoet:1.16.0")
-    implementation("com.squareup:kotlinpoet-ksp:1.14.2")
+
+    implementation(libs.ksp)
+    implementation(libs.poet)
+    implementation(libs.poet.ksp)
 }

@@ -5,13 +5,21 @@ import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
 import example.plugin.annotation.Route
 
-class ExampleContract: ActivityResultContract<Boolean, Boolean>() {
+class ActivityContract: ActivityResultContract<Boolean, Boolean>() {
+
+    @Route("doesNothing")
+    fun getContract() = ActivityContract()
 
     companion object {
 
         @Route
         fun getContract(): ActivityResultContract<Boolean, Boolean> {
-            return ExampleContract()
+            return ActivityContract()
+        }
+
+        @Route("Secondary")
+        fun getSecondaryContract(): ActivityResultContract<Boolean, Boolean> {
+            return ActivityContract()
         }
     }
 
@@ -23,5 +31,6 @@ class ExampleContract: ActivityResultContract<Boolean, Boolean>() {
         return true
     }
 
-    val default = ExampleContractNavigationRoute { getContract() }
+    val default = ContractNavigationRoute { getContract() }
+    val example = SecondaryNavigationRoute { getContract() }
 }

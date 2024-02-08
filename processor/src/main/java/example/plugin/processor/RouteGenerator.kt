@@ -4,50 +4,33 @@ import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.symbol.FunctionKind
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.ksp.writeTo
+import example.plugin.processor.ClassNames.isContext
+import example.plugin.processor.ClassNames.isContract
+import example.plugin.processor.ClassNames.isIntent
 
 class RouteGenerator(
     private val codeGenerator: CodeGenerator
 ) {
-
-    private val context = ClassName("android.content", "Context")
-    private val intent = ClassName("android.content", "Intent")
-    private val fragment = ClassName("androidx.fragment.app", "Fragment")
-    private val deprecatedFragment = ClassName("android.app", "Fragment")
-    private val contract = ClassName("androidx.activity.result.contract", "ActivityResultContract").parameterizedBy(STAR, STAR)
-
-    private val KSType.isContext: Boolean
-        get() = toClassName() == context
-
-    private val KSType.isIntent: Boolean
-        get() = toClassName() == intent
-
-    private val KSType.isContract: Boolean
-        get() = toClassName().parameterizedBy(STAR, STAR) == contract
-
-    private val KSType.isFragment: Boolean
-        get() = toClassName() == fragment || toClassName() == deprecatedFragment // needs to be instanceOf fragment
 
     fun generate(route: KSFunctionDeclaration, routeName: String) {
         // expects to be declared in a companion object, so finds the parent of that parent companion object
         // should try to find declarations, filter KSClassDeclaration and filter not isCompanionObject...
         val parentClass = route.parentDeclaration?.parentDeclaration?.closestClassDeclaration()?.toClassName()?.simpleName ?: return
         // allow routeName override from params, fall back to class name
-        val interfaceName = routeName.ifBlank { parentClass }
+        val interfaceName = routeName.ifBlank { parentClass }.replace("activity", "", true).replace("fragment", "", true)
 
-        // makes sure it's annotation on a member function, not a root-level static function
+        // makes sure it's annotation on a member function, not a root-level static function, and returns a class
         val isParentCompanionObject = route.closestClassDeclaration()?.isCompanionObject
-        if (route.functionKind != FunctionKind.MEMBER || isParentCompanionObject != true) return
+        val returnType = route.returnType
+        if (route.functionKind != FunctionKind.MEMBER || isParentCompanionObject != true || returnType == null) return
 
         // package + class name for route interface
         val interfaceClass = ClassName(
@@ -55,17 +38,15 @@ class RouteGenerator(
             "${interfaceName}NavigationRoute"
         )
 
-        // require a return type (should be either Intent, Fragment or Contract)
-        val returnType = route.returnType ?: return
-
         val resolvedType = returnType.resolve()
         val includeContext = resolvedType.isIntent
 
+        // TODO this could be improved
         val methodName = when {
             resolvedType.isIntent -> "getIntent"
-            resolvedType.isFragment -> "getFragment"
             resolvedType.isContract -> "getContract"
-            else -> throw UnsupportedOperationException("${resolvedType.declaration.simpleName.getShortName()} is not a supported type")
+            parentClass.contains("fragment", true) -> "getFragment"
+            else -> return
         }
 
         val output = FileSpec.builder(interfaceClass)
@@ -76,7 +57,7 @@ class RouteGenerator(
                             .addModifiers(KModifier.ABSTRACT)
                             .apply {
                                 // if we need to create an intent route, pass in Context
-                                if (includeContext) addParameter("context", context)
+                                if (includeContext) addParameter("context", ClassNames.context)
                             }
                             .apply {
                                 // don't double include context param if it's declared
@@ -93,6 +74,7 @@ class RouteGenerator(
             )
             .build()
 
+        // TODO if file exists, rewrite by removed SAM and adding other abstract method(s)
         output.writeTo(codeGenerator, false)
     }
 }

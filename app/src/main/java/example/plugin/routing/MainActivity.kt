@@ -21,6 +21,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    val default = MainActivityNavigationRoute { context -> getIntent(context) }
+    val default = MainNavigationRoute { context -> getIntent(context) }
     val example = ExampleNavigationRoute { context, id -> getIntent(context, id) }
 }
