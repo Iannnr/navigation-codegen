@@ -3,21 +3,21 @@ package example.plugin.routing
 import android.content.Context
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
-import example.plugin.annotation.Route
+import example.plugin.annotation.NavigationRoute
 
 class ActivityContract: ActivityResultContract<Boolean, Boolean>() {
 
-    @Route("doesNothing")
+    @NavigationRoute("doesNothing")
     fun getIncorrectContract() = ActivityContract()
 
     companion object {
 
-        @Route
+        @NavigationRoute
         fun getContract(): ActivityResultContract<Boolean, Boolean> {
             return ActivityContract()
         }
 
-        @Route("Secondary")
+        @NavigationRoute("Secondary")
         fun getSecondaryContract(): ActivityResultContract<Boolean, Boolean> {
             return ActivityContract()
         }

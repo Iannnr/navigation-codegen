@@ -4,6 +4,7 @@ fragment = "1.6.2"
 ksp = "1.9.21-1.0.16"
 poet = "1.16.0"
 poet-ksp = "1.14.2"
+dagger = "2.49"
 
 [libraries]
 activity = { module = "androidx.activity:activity-ktx", version.ref = "activity" }
@@ -12,4 +13,6 @@ ksp = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = 
 poet = { module = "com.squareup:kotlinpoet", version.ref = "poet" }
 poet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "poet-ksp" }
 
-[plugins]
+dagger-core = { module = "com.google.dagger:dagger", version.ref = "dagger" }
+
+[bundles]

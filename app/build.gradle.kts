@@ -51,6 +51,9 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.fragment)
 
+    // transitive @Inject dependency
+    implementation(libs.dagger.core)
+
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
 }

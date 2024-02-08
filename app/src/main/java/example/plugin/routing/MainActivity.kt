@@ -3,18 +3,18 @@ package example.plugin.routing
 import android.content.Context
 import android.content.Intent
 import androidx.activity.ComponentActivity
-import example.plugin.annotation.Route
+import example.plugin.annotation.NavigationRoute
 import java.util.UUID
 
 class MainActivity : ComponentActivity() {
 
     companion object {
-        @Route
+        @NavigationRoute
         fun getIntent(context: Context): Intent {
             return Intent(context, MainActivity::class.java)
         }
 
-        @Route("Example")
+        @NavigationRoute("Example")
         fun getIntent(context: Context, id: UUID): Intent {
             return Intent(context, MainActivity::class.java)
                 .putExtra("id", id)

@@ -1,19 +1,19 @@
 package example.plugin.routing
 
 import androidx.fragment.app.Fragment
-import example.plugin.annotation.Route
+import example.plugin.annotation.NavigationRoute
 import java.util.UUID
 
 class HomeFragment : Fragment() {
 
     companion object {
 
-        @Route
+        @NavigationRoute
         fun newInstance() = HomeFragment().apply {
 
         }
 
-        @Route("Personal")
+        @NavigationRoute("Personal")
         fun newInstance(id: UUID) = HomeFragment().apply {
 
         }

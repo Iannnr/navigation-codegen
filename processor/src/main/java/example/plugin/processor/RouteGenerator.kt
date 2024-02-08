@@ -4,6 +4,8 @@ import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSType
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -37,22 +39,49 @@ class RouteGenerator(
             "${interfaceName}NavigationRoute"
         )
 
-        val output = FileSpec.builder(interfaceClass)
+        val functionParameters = route.parameters
+            .map {
+                ParameterSpec.builder(
+                    name = it.name!!.asString(),
+                    type = it.type.toTypeName()
+                ).build()
+            }
+
+        val implementationFunSpec = FunSpec.builder(returnType.getMethodName(resolver))
+            .addModifiers(KModifier.OVERRIDE)
+            .addParameters(functionParameters)
+            .returns(returnType.getReturnType(resolver))
+            .addStatement(
+                """return ${getImplementationMethod(route)}"""
+            )
+            .build()
+
+        // TODO if file exists, rewrite by removed SAM and adding other abstract method(s)
+        generateInterface(
+            classSpec = interfaceClass,
+            returnType = returnType,
+            params = functionParameters
+        )
+
+        // generate the implementation class, override the interface
+        generateImplementation(
+            parent = interfaceClass,
+            overrideFun = implementationFunSpec
+        )
+    }
+
+    private fun generateInterface(
+        classSpec: ClassName,
+        returnType: KSType,
+        params: List<ParameterSpec>
+    ) {
+        val interfaceSpec = FileSpec.builder(classSpec)
             .addType(
-                TypeSpec.funInterfaceBuilder(interfaceClass)
+                TypeSpec.funInterfaceBuilder(classSpec)
                     .addFunction(
                         FunSpec.builder(returnType.getMethodName(resolver))
                             .addModifiers(KModifier.ABSTRACT)
-                            .apply {
-                                val specs = route.parameters
-                                    .map {
-                                    ParameterSpec.builder(
-                                        name = it.name!!.asString(),
-                                        type = it.type.toTypeName()
-                                    ).build()
-                                }
-                                addParameters(specs)
-                            }
+                            .addParameters(params)
                             .returns(returnType.getReturnType(resolver))
                             .build()
                     )
@@ -60,7 +89,43 @@ class RouteGenerator(
             )
             .build()
 
-        // TODO if file exists, rewrite by removed SAM and adding other abstract method(s)
-        output.writeTo(codeGenerator, false)
+        interfaceSpec.writeTo(codeGenerator, false)
+    }
+
+    private fun generateImplementation(
+        parent: ClassName,
+        overrideFun: FunSpec
+    ) {
+        val implementationSpec = FileSpec.builder(parent.packageName, parent.simpleName + "Impl")
+            .addType(
+                TypeSpec.classBuilder(parent.simpleName + "Impl")
+                    .addModifiers(KModifier.INTERNAL)
+                    .addSuperinterface(parent)
+                    .primaryConstructor(
+                        FunSpec.constructorBuilder()
+                            .addAnnotation(
+                                AnnotationSpec.builder(
+                                    ClassName("javax.inject", "Inject")
+                                )
+                                    .build()
+                            )
+                            .build()
+                    )
+                    .addFunction(overrideFun)
+                    .build()
+            )
+
+            .build()
+
+        implementationSpec.writeTo(codeGenerator, false)
+    }
+
+    private fun getImplementationMethod(route: KSFunctionDeclaration): String {
+        val parent = route.parentDeclaration?.parentDeclaration?.closestClassDeclaration()?.toClassName()?.simpleName
+        val params = route.parameters.joinToString { it.name!!.asString() }
+
+        return """
+            $parent.${route.simpleName.asString()}($params)
+        """.trimIndent()
     }
 }

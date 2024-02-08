@@ -23,13 +23,13 @@ object ClassNames {
     private val contract = ClassName("androidx.activity.result.contract", "ActivityResultContract").parameterizedBy(STAR, STAR)
 
     /// region checks to see if the return type is any of the expected types we use for navigation
-    private val KSType.isIntent: Boolean
+    internal val KSType.isIntent: Boolean
         get() = toClassName() == intent
 
-    private val KSType.isContract: Boolean
+    internal val KSType.isContract: Boolean
         get() = toClassName().parameterizedBy(STAR, STAR) == contract
 
-    private fun KSType.isFragment(resolver: Resolver): Boolean {
+    internal fun KSType.isFragment(resolver: Resolver): Boolean {
         val fragmentClass = resolver.getClassDeclarationByName(FRAGMENT)!!.asType(listOf())
         val returnDeclaration = resolver.getClassDeclarationByName(declaration.qualifiedName!!)!!
 

@@ -10,7 +10,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.validate
-import example.plugin.annotation.Route
+import example.plugin.annotation.NavigationRoute
 
 class RouteProcessor(
     logger: KSPLogger,
@@ -28,7 +28,7 @@ class RouteProcessor(
     }
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        val annotation = Route::class.qualifiedName ?: return emptyList()
+        val annotation = NavigationRoute::class.qualifiedName ?: return emptyList()
 
         val visitor = RouteVisitor(generator, resolver)
         val acceptedTypes = getAcceptedRouteTypes(resolver)

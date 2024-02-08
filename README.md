@@ -22,10 +22,6 @@ Examples:
 - [Contract](https://github.com/Iannnr/navigation-codegen/blob/master/app/src/main/java/example/plugin/routing/ActivityContract.kt)
 
 TODO:
-- Create codegen for implementation which references the method, maybe in the same file ie.
-```
-class MainActivityNavigationRouteImpl @Inject constructor(): MainActivityNavigationRoute {
-  fun getIntent(context: Context) = MainActivity.getIntent(context)
-}
-```
 - Detect when more than one method is going to be generated from a class, and change from a SAM interface to one which has methods for all routes
+- Create Dagger Module which auto binds all generated implementation
+- Create annotation which auto generates the default "getIntent/newInstance/getContract" for the root Route class
