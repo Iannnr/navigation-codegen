@@ -2,72 +2,58 @@ package example.plugin.processor
 
 import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.symbol.FunctionKind
+import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.ksp.writeTo
-import example.plugin.processor.ClassNames.isContext
-import example.plugin.processor.ClassNames.isContract
-import example.plugin.processor.ClassNames.isIntent
+import example.plugin.processor.ClassNames.getMethodName
+import example.plugin.processor.ClassNames.getReturnType
 
 class RouteGenerator(
-    private val codeGenerator: CodeGenerator
+    private val codeGenerator: CodeGenerator,
+    private val resolver: Resolver
 ) {
 
     fun generate(route: KSFunctionDeclaration, routeName: String) {
         // expects to be declared in a companion object, so finds the parent of that parent companion object
-        // should try to find declarations, filter KSClassDeclaration and filter not isCompanionObject...
         val parentClass = route.parentDeclaration?.parentDeclaration?.closestClassDeclaration()?.toClassName()?.simpleName ?: return
-        // allow routeName override from params, fall back to class name
-        val interfaceName = routeName.ifBlank { parentClass }.replace("activity", "", true).replace("fragment", "", true)
+        val returnType = route.returnType?.resolve() ?: return
+        val containingFile = route.containingFile ?: return
 
-        // makes sure it's annotation on a member function, not a root-level static function, and returns a class
-        val isParentCompanionObject = route.closestClassDeclaration()?.isCompanionObject
-        val returnType = route.returnType
-        if (route.functionKind != FunctionKind.MEMBER || isParentCompanionObject != true || returnType == null) return
+        // allow routeName override from params, fall back to class (not companion object) name
+        val interfaceName = routeName.ifBlank { parentClass }
+            .replace(Regex("([aA]ctivity|[fF]ragment)"), "") // replace android-specific terminology, as routes are agnostic
 
         // package + class name for route interface
         val interfaceClass = ClassName(
-            route.containingFile!!.packageName.asString(),
+            containingFile.packageName.asString(),
             "${interfaceName}NavigationRoute"
         )
-
-        val resolvedType = returnType.resolve()
-        val includeContext = resolvedType.isIntent
-
-        // TODO this could be improved
-        val methodName = when {
-            resolvedType.isIntent -> "getIntent"
-            resolvedType.isContract -> "getContract"
-            parentClass.contains("fragment", true) -> "getFragment"
-            else -> return
-        }
 
         val output = FileSpec.builder(interfaceClass)
             .addType(
                 TypeSpec.funInterfaceBuilder(interfaceClass)
                     .addFunction(
-                        FunSpec.builder(methodName)
+                        FunSpec.builder(returnType.getMethodName(resolver))
                             .addModifiers(KModifier.ABSTRACT)
                             .apply {
-                                // if we need to create an intent route, pass in Context
-                                if (includeContext) addParameter("context", ClassNames.context)
+                                val specs = route.parameters
+                                    .map {
+                                    ParameterSpec.builder(
+                                        name = it.name!!.asString(),
+                                        type = it.type.toTypeName()
+                                    ).build()
+                                }
+                                addParameters(specs)
                             }
-                            .apply {
-                                // don't double include context param if it's declared
-                                // but include any extra params declared in the annotated function
-                                route.parameters
-                                    .filter { !it.type.resolve().isContext }
-                                    .map { it.name?.getShortName()!! to it.type.toTypeName() }
-                                    .forEach { (name, type) -> addParameter(name, type) }
-                            }
-                            .returns(returnType.toTypeName())
+                            .returns(returnType.getReturnType(resolver))
                             .build()
                     )
                     .build()

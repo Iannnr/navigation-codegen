@@ -8,7 +8,7 @@ import example.plugin.annotation.Route
 class ActivityContract: ActivityResultContract<Boolean, Boolean>() {
 
     @Route("doesNothing")
-    fun getContract() = ActivityContract()
+    fun getIncorrectContract() = ActivityContract()
 
     companion object {
 
