@@ -18,8 +18,8 @@ Generator: [RouteGenerator](https://github.com/Iannnr/navigation-codegen/blob/ma
 
 Examples:
 - [Activity](https://github.com/Iannnr/navigation-codegen/blob/master/app/src/main/java/example/plugin/routing/MainActivity.kt)
-- [Fragment](https://github.com/Iannnr/navigation-codegen/blob/master/app/src/main/java/example/plugin/routing/MainFragment.kt) 
-- [Contract](https://github.com/Iannnr/navigation-codegen/blob/master/app/src/main/java/example/plugin/routing/ExampleContract.kt)
+- [Fragment](https://github.com/Iannnr/navigation-codegen/blob/master/app/src/main/java/example/plugin/routing/HomeFragment.kt) 
+- [Contract](https://github.com/Iannnr/navigation-codegen/blob/master/app/src/main/java/example/plugin/routing/ActivityContract.kt)
 
 TODO:
 - Create codegen for implementation which references the method, maybe in the same file ie.
@@ -28,4 +28,4 @@ class MainActivityNavigationRouteImpl @Inject constructor(): MainActivityNavigat
   fun getIntent(context: Context) = MainActivity.getIntent(context)
 }
 ```
-- Remove relevant suffixes from class names to make `MainNavigationRoute` so it doesn't need to indicate activity/fragment/contract etc, only the method needs to
+- Detect when more than one method is going to be generated from a class, and change from a SAM interface to one which has methods for all routes
