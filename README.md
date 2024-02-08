@@ -8,22 +8,23 @@ Determines the method name passed on the return type
 Uses return type reference exactly, so not need for reflection of acceptable types
 
 
-Annotation class: [@Route.kt](https://github.com/Iannnr/navigation-codegen/blob/master/annotation/src/main/java/example/plugin/annotation/Route.kt)
+Annotation class: [@Route](https://github.com/Iannnr/navigation-codegen/blob/master/annotation/src/main/java/example/plugin/annotation/Route.kt)
 
 Processor: [RouteProcessor](https://github.com/Iannnr/navigation-codegen/blob/master/processor/src/main/java/example/plugin/processor/RouteProcessor.kt)
-- RouteValidator should have some rules about can/can't be annotated and used for routes
+- RouteValidator should have some rules about can/can't be annotated and used for routes, needs to handle Fragments better
 
 Generator: [RouteGenerator](https://github.com/Iannnr/navigation-codegen/blob/master/processor/src/main/java/example/plugin/processor/RouteGenerator.kt)
 - Definitely needs tests and some more edge cases handled.
 
 Examples:
-- Input / annotated methods - [MainActivity](https://github.com/Iannnr/navigation-codegen/blob/master/app/src/main/java/example/plugin/routing/MainActivity.kt#L14-L36)
-- Output / usage of generated functional SAM interfaces - [MainActivity](https://github.com/Iannnr/navigation-codegen/blob/master/app/src/main/java/example/plugin/routing/MainActivity.kt#L40-L42)
+- [Activity](https://github.com/Iannnr/navigation-codegen/blob/master/app/src/main/java/example/plugin/routing/MainActivity.kt)
+- [Fragment](https://github.com/Iannnr/navigation-codegen/blob/master/app/src/main/java/example/plugin/routing/MainFragment.kt) 
+- [Contract](https://github.com/Iannnr/navigation-codegen/blob/master/app/src/main/java/example/plugin/routing/ExampleContract.kt)
 
 TODO:
 - Create codegen for implementation which references the method, maybe in the same file ie.
 ```
-class MainActivityNavigationRouteImpl @Inject constructor: MainActivityNavigationRoute {
+class MainActivityNavigationRouteImpl @Inject constructor(): MainActivityNavigationRoute {
   fun getIntent(context: Context) = MainActivity.getIntent(context)
 }
 ```
