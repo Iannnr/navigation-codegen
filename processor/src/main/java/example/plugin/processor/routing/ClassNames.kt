@@ -17,8 +17,10 @@ object ClassNames {
         internal const val FRAGMENT = "androidx.fragment.app.Fragment"
         internal const val INTENT = "android.content.Intent"
         internal const val CONTRACT = "androidx.activity.result.contract.ActivityResultContract"
+        internal const val ACTIVITY = "android.app.Activity"
     }
 
+    internal val fragment = ClassName("androidx.fragment.app", "Fragment")
     internal val context = ClassName("android.content", "Context")
     internal val intent = ClassName("android.content", "Intent")
     internal val contract = ClassName("androidx.activity.result.contract", "ActivityResultContract").parameterizedBy(STAR, STAR)

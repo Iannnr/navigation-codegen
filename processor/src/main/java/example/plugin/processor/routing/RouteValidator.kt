@@ -5,17 +5,18 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.squareup.kotlinpoet.ksp.toClassName
 
 class RouteValidator(
     private val logger: KSPLogger
 ) {
 
     fun isValid(resolver: Resolver, node: KSFunctionDeclaration, types: List<KSClassDeclaration>): Boolean {
+        logger.warn("validating: " + node.qualifiedName!!.asString())
+
         if (!filterExpectedFunction(node)) {
             return false
         }
-
-        // logger.warn("validating: " + node.qualifiedName!!.asString())
 
         // qualified name of the return type
         val qualifiedName = node.returnType?.resolve()?.declaration?.qualifiedName!!
@@ -31,7 +32,7 @@ class RouteValidator(
                     return true
                 }
             }
-            // logger.warn("Processed and invalid: ${resolvedType.toClassName()}")
+            logger.warn("Processed and invalid: ${resolvedType.toClassName()}")
         }
 
         // if we've not already returned true, it's not valid

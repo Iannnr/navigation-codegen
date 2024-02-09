@@ -36,8 +36,6 @@ class RouteGenerator(
         val returnType = route.returnType?.resolve() ?: return noop
         val containingFile = route.containingFile ?: return noop
 
-        logger.warn("parent: $parent")
-
         // allow routeName override from params, fall back to class (not companion object) name
         val interfaceName = routeName.ifBlank { parent }
             .replace(Regex("([aA]ctivity|[fF]ragment)"), "") // replace android-specific terminology, as routes are agnostic
@@ -65,7 +63,7 @@ class RouteGenerator(
                 containingFile = containingFile
             )
 
-        NavigationImplementationGenerator(resolver, codeGenerator)
+        NavigationImplementationGenerator(resolver, codeGenerator, logger)
             .generateImplementation(
                 parent = interfaceClass,
                 containingFile = containingFile,

@@ -30,20 +30,22 @@ class RouteProcessor(
     }
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        // logger.warn("process Route")
         val annotation = NavigationRoute::class.qualifiedName ?: return emptyList()
 
         visitor = RouteVisitor(generator, resolver, logger)
         val acceptedTypes = getAcceptedRouteTypes(resolver)
 
+        val files = resolver.getNewFiles()
+        logger.warn("new files: ${files.map { it.fileName }.toList()}")
+
         // get all methods which are annotated as routes
         val resolved = resolver
             .getSymbolsWithAnnotation(annotation)
-            .filterIsInstance<KSFunctionDeclaration>()
             .toList()
 
         val filtered = resolved
             .filter(KSNode::validate)
+            .filterIsInstance<KSFunctionDeclaration>()
             .filter { function -> validator.isValid(resolver, function, acceptedTypes) }
             .onEach {
                 // tell the route visitor to go and generate the code for this function
@@ -51,7 +53,7 @@ class RouteProcessor(
             }
 
         // return a list of unprocessed functions
-        return (resolved - filtered.toSet())
+        return resolved - filtered.toSet()
     }
 
     override fun finish() {
