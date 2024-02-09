@@ -8,7 +8,7 @@ Determines the method name passed on the return type
 Uses return type reference exactly, so not need for reflection of acceptable types
 
 
-Annotation class: [@Route](https://github.com/Iannnr/navigation-codegen/blob/master/annotation/src/main/java/example/plugin/annotation/Route.kt)
+Annotation class: [@NavigationRoute](https://github.com/Iannnr/navigation-codegen/blob/master/annotation/src/main/java/example/plugin/annotation/NavigationRoute.kt)
 
 Processor: [RouteProcessor](https://github.com/Iannnr/navigation-codegen/blob/master/processor/src/main/java/example/plugin/processor/RouteProcessor.kt)
 - RouteValidator should have some rules about can/can't be annotated and used for routes, needs to handle Fragments better
