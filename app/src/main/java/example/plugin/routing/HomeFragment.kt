@@ -3,8 +3,15 @@ package example.plugin.routing
 import androidx.fragment.app.Fragment
 import example.plugin.annotation.NavigationRoute
 import java.util.UUID
+import javax.inject.Inject
 
 class HomeFragment : Fragment() {
+
+    @Inject
+    lateinit var home: MainNavigationRoute
+
+    @Inject
+    lateinit var personal: ExampleNavigationRoute
 
     companion object {
 
@@ -18,7 +25,4 @@ class HomeFragment : Fragment() {
 
         }
     }
-
-    val default = HomeNavigationRoute { newInstance() }
-    val example = PersonalNavigationRoute { id -> newInstance(id) }
 }

@@ -1,10 +1,9 @@
 package example.plugin.processor
 
 import com.google.devtools.ksp.getClassDeclarationByName
-import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -13,10 +12,11 @@ import com.google.devtools.ksp.validate
 import example.plugin.annotation.NavigationRoute
 
 class RouteProcessor(
-    logger: KSPLogger,
-    private val generator: CodeGenerator
+    environment: SymbolProcessorEnvironment
 ) : SymbolProcessor {
 
+    private val logger = environment.logger
+    private val generator = environment.codeGenerator
     private val validator = RouteValidator(logger)
 
     private fun getAcceptedRouteTypes(resolver: Resolver): List<KSClassDeclaration> {
@@ -30,7 +30,7 @@ class RouteProcessor(
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val annotation = NavigationRoute::class.qualifiedName ?: return emptyList()
 
-        val visitor = RouteVisitor(generator, resolver)
+        val visitor = RouteVisitor(generator, resolver, logger)
         val acceptedTypes = getAcceptedRouteTypes(resolver)
 
         // get all methods which are annotated as routes
@@ -46,6 +46,11 @@ class RouteProcessor(
                 // tell the route visitor to go and generate the code for this function
                 it.accept(visitor, Unit)
             }
+
+        // only generate spec when the filtered list contains valid entries
+        if (filtered.isNotEmpty()) {
+            visitor.generateAllSpecs()
+        }
 
         // return a list of unprocessed functions
         return resolved - filtered.toSet()

@@ -19,8 +19,8 @@ object ClassNames {
         internal const val CONTRACT = "androidx.activity.result.contract.ActivityResultContract"
     }
 
-    private val intent = ClassName("android.content", "Intent")
-    private val contract = ClassName("androidx.activity.result.contract", "ActivityResultContract").parameterizedBy(STAR, STAR)
+    internal val intent = ClassName("android.content", "Intent")
+    internal val contract = ClassName("androidx.activity.result.contract", "ActivityResultContract").parameterizedBy(STAR, STAR)
 
     /// region checks to see if the return type is any of the expected types we use for navigation
     internal val KSType.isIntent: Boolean
