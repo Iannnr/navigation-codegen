@@ -1,11 +1,10 @@
-package example.plugin.processor
+package example.plugin.processor.routing
 
 import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.squareup.kotlinpoet.ksp.toClassName
 
 class RouteValidator(
     private val logger: KSPLogger
@@ -15,6 +14,8 @@ class RouteValidator(
         if (!filterExpectedFunction(node)) {
             return false
         }
+
+        // logger.warn("validating: " + node.qualifiedName!!.asString())
 
         // qualified name of the return type
         val qualifiedName = node.returnType?.resolve()?.declaration?.qualifiedName!!
@@ -30,7 +31,7 @@ class RouteValidator(
                     return true
                 }
             }
-            logger.warn("Processed and invalid: ${resolvedType.toClassName()}")
+            // logger.warn("Processed and invalid: ${resolvedType.toClassName()}")
         }
 
         // if we've not already returned true, it's not valid
@@ -38,7 +39,7 @@ class RouteValidator(
     }
 
     internal fun filterExpectedFunction(route: KSFunctionDeclaration): Boolean {
-        return isCompanionObject(route) && hasContainingFile(route)
+        return isCompanionObject(route) || hasContainingFile(route)
     }
 
     // is declared in a companion object

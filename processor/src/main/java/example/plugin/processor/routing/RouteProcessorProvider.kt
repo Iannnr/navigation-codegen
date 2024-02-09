@@ -1,4 +1,4 @@
-package example.plugin.processor
+package example.plugin.processor.routing
 
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment

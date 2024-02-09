@@ -1,1 +1,2 @@
-example.plugin.processor.RouteProcessorProvider
+example.plugin.processor.autorouting.AutoRouteProcessorProvider
+example.plugin.processor.routing.RouteProcessorProvider

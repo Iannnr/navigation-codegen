@@ -1,7 +1,8 @@
-package example.plugin.processor
+package example.plugin.processor.routing
 
 import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.processing.CodeGenerator
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.ClassName
@@ -16,20 +17,29 @@ import com.squareup.kotlinpoet.ksp.writeTo
 
 class RouteGenerator(
     private val codeGenerator: CodeGenerator,
-    private val resolver: Resolver
+    private val resolver: Resolver,
+    private val logger: KSPLogger
 ) {
 
     private val noop = FunSpec.builder("")
         .build()
 
     fun generateFunSpec(route: KSFunctionDeclaration, routeName: String): FunSpec {
+        val parentClass = if (route.extensionReceiver != null) {
+            route.extensionReceiver?.resolve()?.declaration?.parentDeclaration?.closestClassDeclaration()?.toClassName()
+        } else {
+            route.parentDeclaration?.parentDeclaration?.closestClassDeclaration()?.toClassName()
+        }
+
         // expects to be declared in a companion object, so finds the parent of that parent companion object
-        val parentClass = route.parentDeclaration?.parentDeclaration?.closestClassDeclaration()?.toClassName()?.simpleName ?: return noop
+        val parent = parentClass?.simpleName ?: return noop
         val returnType = route.returnType?.resolve() ?: return noop
         val containingFile = route.containingFile ?: return noop
 
+        logger.warn("parent: $parent")
+
         // allow routeName override from params, fall back to class (not companion object) name
-        val interfaceName = routeName.ifBlank { parentClass }
+        val interfaceName = routeName.ifBlank { parent }
             .replace(Regex("([aA]ctivity|[fF]ragment)"), "") // replace android-specific terminology, as routes are agnostic
 
         // package + class name for route interface
@@ -64,7 +74,7 @@ class RouteGenerator(
                 route = route
             )
 
-        return DaggerModuleGenerator()
+        return DaggerModuleGenerator(logger)
             .generateFunSpec(route, interfaceClass)
     }
 

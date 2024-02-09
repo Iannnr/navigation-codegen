@@ -1,17 +1,19 @@
-package example.plugin.processor
+package example.plugin.processor.routing
 
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
-import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 
-class DaggerModuleGenerator {
+class DaggerModuleGenerator(
+    private val logger: KSPLogger
+) {
 
     fun generateFunSpec(function: KSFunctionDeclaration, routeName: ClassName): FunSpec {
         return FunSpec.builder("binds${routeName.simpleName}")
-            .addOriginatingKSFile(function.containingFile!!)
+            //.addOriginatingKSFile(function.containingFile!!)
             .addAnnotation(ClassName("dagger", "Binds"))
             .addAnnotation(ClassName("javax.inject", "Singleton"))
             .addParameter(
@@ -20,6 +22,8 @@ class DaggerModuleGenerator {
             )
             .addModifiers(KModifier.ABSTRACT)
             .returns(routeName)
-            .build()
+            .build().also {
+                // logger.warn("spec: $it")
+            }
     }
 }

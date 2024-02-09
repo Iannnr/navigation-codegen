@@ -1,4 +1,4 @@
-package example.plugin.processor
+package example.plugin.processor.routing
 
 import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.processing.Resolver
@@ -19,6 +19,8 @@ class RouteProcessor(
     private val generator = environment.codeGenerator
     private val validator = RouteValidator(logger)
 
+    lateinit var visitor: RouteVisitor
+
     private fun getAcceptedRouteTypes(resolver: Resolver): List<KSClassDeclaration> {
         return listOfNotNull(
             resolver.getClassDeclarationByName(ClassNames.ClassPaths.INTENT),
@@ -28,9 +30,10 @@ class RouteProcessor(
     }
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
+        // logger.warn("process Route")
         val annotation = NavigationRoute::class.qualifiedName ?: return emptyList()
 
-        val visitor = RouteVisitor(generator, resolver, logger)
+        visitor = RouteVisitor(generator, resolver, logger)
         val acceptedTypes = getAcceptedRouteTypes(resolver)
 
         // get all methods which are annotated as routes
@@ -47,12 +50,13 @@ class RouteProcessor(
                 it.accept(visitor, Unit)
             }
 
-        // only generate spec when the filtered list contains valid entries
-        if (filtered.isNotEmpty()) {
-            visitor.generateAllSpecs()
-        }
-
         // return a list of unprocessed functions
-        return resolved - filtered.toSet()
+        return (resolved - filtered.toSet())
+    }
+
+    override fun finish() {
+        super.finish()
+
+        visitor.generateAllSpecs()
     }
 }

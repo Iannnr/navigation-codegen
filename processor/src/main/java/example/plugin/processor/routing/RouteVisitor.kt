@@ -1,4 +1,4 @@
-package example.plugin.processor
+package example.plugin.processor.routing
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
@@ -13,11 +13,15 @@ class RouteVisitor(
     private val logger: KSPLogger
 ) : KSVisitorVoid() {
 
-    private val generator = RouteGenerator(codeGenerator, resolver)
-    private val funSpecs = mutableListOf<FunSpec>()
+    companion object {
+        private val funSpecs = mutableListOf<FunSpec>()
+    }
+
+    private val generator = RouteGenerator(codeGenerator, resolver, logger)
+
 
     override fun visitFunctionDeclaration(function: KSFunctionDeclaration, data: Unit) {
-        logger.warn("visitFunctionDeclaration")
+        // logger.warn("visitFunctionDeclaration")
 
         val arguments = function.annotations.iterator().next().arguments
         val routeName = arguments[0].value as String

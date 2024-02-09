@@ -1,4 +1,4 @@
-package example.plugin.processor
+package example.plugin.processor.routing
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Resolver
@@ -12,8 +12,8 @@ import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 import com.squareup.kotlinpoet.ksp.writeTo
-import example.plugin.processor.ClassNames.getMethodName
-import example.plugin.processor.ClassNames.getReturnType
+import example.plugin.processor.routing.ClassNames.getMethodName
+import example.plugin.processor.routing.ClassNames.getReturnType
 
 class NavigationInterfaceGenerator(
     private val resolver: Resolver,
@@ -42,6 +42,6 @@ class NavigationInterfaceGenerator(
             )
             .build()
 
-        interfaceSpec.writeTo(codeGenerator, false)
+        interfaceSpec.writeTo(codeGenerator, true)
     }
 }

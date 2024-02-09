@@ -1,4 +1,4 @@
-package example.plugin.processor
+package example.plugin.processor.routing
 
 import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.processing.CodeGenerator
@@ -16,8 +16,8 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.writeTo
-import example.plugin.processor.ClassNames.getMethodName
-import example.plugin.processor.ClassNames.getReturnType
+import example.plugin.processor.routing.ClassNames.getMethodName
+import example.plugin.processor.routing.ClassNames.getReturnType
 
 class NavigationImplementationGenerator(
     private val resolver: Resolver,
@@ -52,15 +52,13 @@ class NavigationImplementationGenerator(
                             containingFile = containingFile,
                             params = params,
                             route = route
-
                         )
                     )
                     .build()
             )
-
             .build()
 
-        implementationSpec.writeTo(codeGenerator, false)
+        implementationSpec.writeTo(codeGenerator, true)
     }
 
     private fun createFunSpec(
@@ -82,11 +80,15 @@ class NavigationImplementationGenerator(
     }
 
     private fun getImplementationMethod(route: KSFunctionDeclaration): String {
-        val parent = route.parentDeclaration?.parentDeclaration?.closestClassDeclaration()?.toClassName()?.simpleName
+        val parentClass = if (route.extensionReceiver != null) {
+            route.extensionReceiver?.resolve()?.declaration?.parentDeclaration?.closestClassDeclaration()?.toClassName()
+        } else {
+            route.parentDeclaration?.parentDeclaration?.closestClassDeclaration()?.toClassName()
+        }
         val params = route.parameters.joinToString { it.name!!.asString() }
 
         return """
-            $parent.${route.simpleName.asString()}($params)
+            ${parentClass?.simpleName}.${route.simpleName.asString()}($params)
         """.trimIndent()
     }
 }

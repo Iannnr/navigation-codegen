@@ -7,9 +7,6 @@ import example.plugin.annotation.NavigationRoute
 
 class ActivityContract: ActivityResultContract<Boolean, Boolean>() {
 
-    @NavigationRoute("doesNothing")
-    fun getIncorrectContract() = ActivityContract()
-
     companion object {
 
         @NavigationRoute

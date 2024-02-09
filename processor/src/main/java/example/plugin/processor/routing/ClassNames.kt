@@ -1,4 +1,4 @@
-package example.plugin.processor
+package example.plugin.processor.routing
 
 import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.processing.Resolver
@@ -9,7 +9,7 @@ import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
-import example.plugin.processor.ClassNames.ClassPaths.FRAGMENT
+import example.plugin.processor.routing.ClassNames.ClassPaths.FRAGMENT
 
 object ClassNames {
 
@@ -19,6 +19,7 @@ object ClassNames {
         internal const val CONTRACT = "androidx.activity.result.contract.ActivityResultContract"
     }
 
+    internal val context = ClassName("android.content", "Context")
     internal val intent = ClassName("android.content", "Intent")
     internal val contract = ClassName("androidx.activity.result.contract", "ActivityResultContract").parameterizedBy(STAR, STAR)
 
