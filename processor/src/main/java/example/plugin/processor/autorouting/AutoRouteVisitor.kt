@@ -15,9 +15,11 @@ import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.writeTo
 import example.plugin.annotation.NavigationRoute
+import example.plugin.processor.poet.KClassPoet
 import example.plugin.processor.routing.ClassNames
 import example.plugin.processor.routing.ClassNames.ClassPaths.ACTIVITY
 import example.plugin.processor.routing.ClassNames.ClassPaths.FRAGMENT
+import kotlin.math.log
 
 class AutoRouteVisitor(
     private val resolver: Resolver,
@@ -25,64 +27,31 @@ class AutoRouteVisitor(
     private val codeGenerator: CodeGenerator
 ) : KSVisitorVoid() {
 
-    private val activity = resolver.getClassDeclarationByName(ACTIVITY)!!.asType(listOf())
-    private val fragment = resolver.getClassDeclarationByName(FRAGMENT)!!.asType(listOf())
+    private val classPoet = KClassPoet(resolver, logger)
 
     companion object {
         private val specs = mutableListOf<FunSpec>()
     }
 
     override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
-        val isFragment = classDeclaration.isFragment
-        val isActivity = classDeclaration.isActivity
-
-        val methodName: String
-        val returnType: ClassName
-
-        if (isActivity) {
-            methodName = "getIntent"
-            returnType = ClassNames.intent
-        } else if (isFragment) {
-            methodName = "newInstance"
-            returnType = ClassNames.fragment
-        } else {
-            return
-        }
-
-        specs += FunSpec.builder(methodName)
-            .addAnnotation(NavigationRoute::class)
-            .receiver(classDeclaration.toClassName().nestedClass("Companion"))
-            .apply {
-                if (isActivity) {
-                    addParameter(
-                        ParameterSpec.builder("context", ClassNames.context)
-                            .build()
-                    )
-                }
-            }
-            .returns(returnType)
-            .addCode(getImplementationMethod(classDeclaration))
-            .build()
+        specs += getFunSpec(classDeclaration)
     }
 
-    private fun getImplementationMethod(route: KSClassDeclaration): CodeBlock {
-        return if (route.isActivity) {
-            CodeBlock.of("""return Intent(context, ·%N::class.java)""", route.toClassName().simpleName)
-        } else if (route.isFragment) {
-            CodeBlock.of("""return ${route.toClassName().simpleName}()""")
-        } else {
-            CodeBlock.of("")
-        }
+    private fun getFunSpec(clazz: KSClassDeclaration): FunSpec {
+        return FunSpec.builder(classPoet.getFunctionName(clazz))
+            .addAnnotation(NavigationRoute::class)
+            .receiver(classPoet.getReceiverType(clazz))
+            .apply {
+                addParameters(classPoet.getParams(clazz))
+            }
+            .returns(classPoet.getReturnType(clazz))
+            .addCode(classPoet.getCodeBlock(clazz))
+            .build()
     }
 
     fun writeSpecs() {
-        val extension = FileSpec.builder("example.plugin.routing", "AutoRoutes")
-            .apply {
-                specs.forEach {
-                    addFunction(it)
-                }
-            }
-            .build()
+        val clazz = ClassName("example.plugin.routing", "AutoRoutes")
+        val extension = classPoet.getFileSpec(clazz, specs)
 
         try {
             extension.writeTo(codeGenerator, true)
@@ -90,10 +59,4 @@ class AutoRouteVisitor(
             logger.warn(e.localizedMessage)
         }
     }
-
-    private val KSClassDeclaration.isActivity: Boolean
-        get() = getAllSuperTypes().contains(activity)
-
-    private val KSClassDeclaration.isFragment: Boolean
-        get() = getAllSuperTypes().contains(fragment)
 }

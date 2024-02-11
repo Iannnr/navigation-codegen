@@ -55,10 +55,10 @@ class RouteGenerator(
             }
 
         // TODO if file exists, rewrite by removed SAM and adding other abstract method(s)
-        NavigationInterfaceGenerator(resolver, codeGenerator)
+        NavigationInterfaceGenerator(resolver, codeGenerator, logger)
             .generateInterface(
                 classSpec = interfaceClass,
-                returnType = returnType,
+                route = route,
                 params = functionParameters,
                 containingFile = containingFile
             )
@@ -67,7 +67,6 @@ class RouteGenerator(
             .generateImplementation(
                 parent = interfaceClass,
                 containingFile = containingFile,
-                returnType = returnType,
                 params = functionParameters,
                 route = route
             )
