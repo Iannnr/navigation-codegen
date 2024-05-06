@@ -6,10 +6,10 @@ pluginManagement {
     }
 
     plugins {
-        id("org.jetbrains.kotlin.jvm") version "1.9.0"
-        id("com.android.library") version "8.3.0-beta02"
-        id("org.jetbrains.kotlin.android") version "1.9.21"
-        id("com.android.application") version "8.3.0-beta02"
+        id("org.jetbrains.kotlin.jvm") version "2.0.0-RC2"
+        id("com.android.library") version "8.4.0"
+        id("org.jetbrains.kotlin.android") version "2.0.0-RC2"
+        id("com.android.application") version "8.4.0"
     }
 }
 
@@ -24,3 +24,4 @@ rootProject.name = "android-codegen"
 include(":annotation")
 include(":processor")
 include(":app")
+include(":lib:navigation")

@@ -10,8 +10,6 @@ import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {
 
-    // automatically created by KSP processor and injectable
-
     //inject the HomeFragment route
     @Inject
     lateinit var home: HomeNavigationRoute

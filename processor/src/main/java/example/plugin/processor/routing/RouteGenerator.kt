@@ -18,7 +18,7 @@ import com.squareup.kotlinpoet.ksp.writeTo
 class RouteGenerator(
     private val codeGenerator: CodeGenerator,
     private val resolver: Resolver,
-    private val logger: KSPLogger
+    private val logger: KSPLogger,
 ) {
 
     private val noop = FunSpec.builder("")
@@ -60,7 +60,7 @@ class RouteGenerator(
                 classSpec = interfaceClass,
                 route = route,
                 params = functionParameters,
-                containingFile = containingFile
+                containingFile = containingFile,
             )
 
         NavigationImplementationGenerator(resolver, codeGenerator, logger)
@@ -76,7 +76,7 @@ class RouteGenerator(
     }
 
     fun generateDagger(specs: List<FunSpec>) {
-        val moduleSpec = FileSpec.builder("example.plugin.routing", "NavigationRouteModule")
+        val moduleSpec = FileSpec.builder("example.plugin.routing.di", "NavigationRouteModule")
             .addType(
                 TypeSpec.classBuilder("NavigationRouteModule")
                     .addModifiers(KModifier.ABSTRACT)

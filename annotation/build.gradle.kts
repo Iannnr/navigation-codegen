@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm")
-    id("com.google.devtools.ksp") version "1.9.21-1.0.16"
+    id("com.google.devtools.ksp") version "2.0.0-RC2-1.0.20"
 }
 
 sourceSets.main {

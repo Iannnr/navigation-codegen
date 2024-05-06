@@ -23,8 +23,6 @@ import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import example.plugin.processor.routing.ClassNames.ClassPaths.FRAGMENT
 import example.plugin.processor.routing.ClassNames.contract
-import example.plugin.processor.routing.ClassNames.getMethodName
-import example.plugin.processor.routing.ClassNames.getReturnType
 import example.plugin.processor.routing.ClassNames.intent
 import example.plugin.processor.routing.ClassNames.isFragment
 
@@ -76,9 +74,11 @@ class KFunctionPoet(
         }
         val params = function.parameters.joinToString { it.name!!.asString() }
 
-        return CodeBlock.of("""
+        return CodeBlock.of(
+            """
             return ${parentClass?.simpleName}.${function.simpleName.asString()}($params)
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
 
     /**
@@ -120,6 +120,7 @@ class KFunctionPoet(
         val fileClassName = ClassName(className.packageName, className.simpleName + "Impl")
 
         return FileSpec.builder(fileClassName)
+            .addImport(className.packageName, className.simpleName) // explicit because it's going to be moved
             .addType(
                 TypeSpec.classBuilder(fileClassName)
                     .addOriginatingKSFile(containingFile)

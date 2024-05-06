@@ -1,7 +1,8 @@
 plugins {
     id("com.android.application")
     kotlin("android")
-    id("com.google.devtools.ksp") version libs.versions.ksp.get()
+    id("com.google.devtools.ksp")
+    id("navigation.route")
 }
 
 android {
@@ -28,11 +29,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = "1.8"
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     packaging {
         resources {
@@ -45,9 +43,6 @@ android {
 }
 
 dependencies {
-    implementation(project(":annotation"))
-    ksp(project(":processor"))
-
     implementation(libs.activity)
     implementation(libs.fragment)
 
@@ -56,4 +51,13 @@ dependencies {
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
+}
+
+navigationRouting {
+    options {
+        outputModule = "lib/navigation"
+        outputNamespace = "example.plugin.routing"
+        flavours = listOf("debug", "release")
+        routeSuffix = "Route.kt"
+    }
 }

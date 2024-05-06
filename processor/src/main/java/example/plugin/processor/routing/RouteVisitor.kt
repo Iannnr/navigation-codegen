@@ -10,7 +10,7 @@ import com.squareup.kotlinpoet.FunSpec
 class RouteVisitor(
     codeGenerator: CodeGenerator,
     resolver: Resolver,
-    private val logger: KSPLogger
+    private val logger: KSPLogger,
 ) : KSVisitorVoid() {
 
     companion object {
@@ -18,7 +18,6 @@ class RouteVisitor(
     }
 
     private val generator = RouteGenerator(codeGenerator, resolver, logger)
-
 
     override fun visitFunctionDeclaration(function: KSFunctionDeclaration, data: Unit) {
         // logger.warn("visitFunctionDeclaration")

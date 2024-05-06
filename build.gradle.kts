@@ -1,6 +1,7 @@
 plugins {
     id("com.android.library")
     kotlin("android")
+    id("com.google.devtools.ksp") version libs.versions.ksp.get() apply false
 }
 
 android {
@@ -19,22 +20,15 @@ android {
 }
 
 buildscript {
-    repositories { mavenCentral() }
-
     dependencies {
-        val kotlinVersion = "1.9.21"
-        classpath(kotlin("gradle-plugin", version = kotlinVersion))
-        classpath(kotlin("serialization", version = kotlinVersion))
+        classpath(kotlin("gradle-plugin", version = libs.versions.kotlin.get()))
+        classpath(kotlin("serialization", version = libs.versions.kotlin.get()))
     }
-}
-
-kotlin {
-    jvmToolchain(17)
 }
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
-    implementation("androidx.fragment:fragment-ktx:1.6.2")
+    implementation(libs.fragment)
 
     implementation(project(":annotation"))
 
